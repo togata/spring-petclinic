@@ -1,12 +1,29 @@
-mysql:
-  image: mysql:5.7
-  ports:
-    - "3306:3306"
-  environment:
-    - MYSQL_ROOT_PASSWORD=
-    - MYSQL_ALLOW_EMPTY_PASSWORD=true
-    - MYSQL_USER=petclinic
-    - MYSQL_PASSWORD=petclinic
-    - MYSQL_DATABASE=petclinic
-  volumes:
-    - "./conf.d:/etc/mysql/conf.d:ro"
+version: '3'
+
+services:
+    app:
+        image: togata88/spring-petclinic
+        restart: on-failure
+        ports:
+            - "8080:8080"
+        environment:
+            - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${DATABASE}?autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+            - SPRING_DATASOURCE_USERNAME=${ROOT_USERNAME}
+            - SPRING_DATASOURCE_PASSWORD=${PASSWORD}
+            - SPRING_DATASOURCE_INITIALIZE=yes
+            - SPRING.DATASOURCE.INITIALIZATION-MODE=always
+            - SPRING_PROFILES_ACTIVE=${PROFILE}
+        depends_on:
+            - mysql
+
+    mysql:
+        image: mysql:5.7
+        ports:
+            - '3306:3306'
+        environment:
+            - MYSQL_ROOT_PASSWORD=${PASSWORD}
+            - MYSQL_DATABASE=${DATABASE}
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${PASSWORD}
+        volumes:
+            - "./conf.d:/etc/mysql/conf.d:ro"
